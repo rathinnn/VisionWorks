@@ -45,9 +45,19 @@ AddOn = imtransform(im2double(img1), maketform('affine', H'), 'bilinear', ...
                     'XData', XdataLimit, 'YData', YdataLimit, ...
                     'FillValues', NaN, 'XYScale', 1);
                 
+Pano2=Pano;
 result_mask = ~isnan(Pano(:,:,1));
 temp_mask = ~isnan(AddOn(:,:,1));
 add_mask = temp_mask & (~result_mask);
+add_mask2 = temp_mask & (result_mask);
+figure;
+
+
+
+[i,j] = find(add_mask2==1);
+
+m=[i j];
+
 
 for c = 1 : size(Pano,3),
     cur_im = Pano(:,:,c);
@@ -56,6 +66,16 @@ for c = 1 : size(Pano,3),
     Pano(:,:,c) = cur_im;
 end
 
+for row = 1:size(i)
+   
+    r=m(row,1);
+    col=m(row,2);
+    d1=col-j(1);
+    d2=j(end)-col;
+    w=d1/(d1+d2);
+    Pano(r,col)=(1-w)*AddOn(r,col)+w*Pano2(r,col);
+    
+end
 %% Cropping
 [I, J] = ind2sub([size(Pano, 1), size(Pano, 2)], find(~isnan(Pano(:, :, 1))));
 upper = max(min(I)-1, 1);
